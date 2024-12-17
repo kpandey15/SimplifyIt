@@ -33,6 +33,86 @@ function convertToMilliseconds(time, unit) {
   return time * (units[unit] || units.minutes);
 }
 
+// function formatTimeLeft(timeLeftMs) {
+//     const seconds = Math.floor((timeLeftMs / 1000) % 60);
+//     const minutes = Math.floor((timeLeftMs / (1000 * 60)) % 60);
+//     const hours = Math.floor((timeLeftMs / (1000 * 60 * 60)) % 24);
+//     const totalDays = Math.floor(timeLeftMs / (1000 * 60 * 60 * 24));
+  
+//     // Calculate years
+//     const years = Math.floor(totalDays / 365); // Approx. 365 days in a year
+  
+//     // Subtract years from total days to calculate remaining months and days
+//     const remainingDaysAfterYears = totalDays % 365;
+//     const months = Math.floor(remainingDaysAfterYears / 30); // Approx. 30 days in a month
+//     const days = remainingDaysAfterYears % 30; // Remaining days after calculating months
+  
+//     let result = '';
+  
+//     if (years > 0) {
+//       result += `${years} year${years > 1 ? 's' : ''} `;
+//     }
+//     if (months > 0) {
+//       result += `${months} month${months > 1 ? 's' : ''} `;
+//     }
+//     if (days > 0) {
+//       result += `${days} day${days > 1 ? 's' : ''} `;
+//     }
+//     if (hours > 0) {
+//       result += `${hours} hour${hours > 1 ? 's' : ''} `;
+//     }
+//     if (minutes > 0) {
+//       result += `${minutes} minute${minutes > 1 ? 's' : ''} `;
+//     }
+//     if (seconds > 0) {
+//       result += `${seconds} second${seconds > 1 ? 's' : ''}`;
+//     }
+  
+//     return result.trim() || 'Expired';
+//   }
+
+function formatTimeLeft(timeLeftMs) {
+    const seconds = Math.floor((timeLeftMs / 1000) % 60);
+    const minutes = Math.floor((timeLeftMs / (1000 * 60)) % 60);
+    const hours = Math.floor((timeLeftMs / (1000 * 60 * 60)) % 24);
+    const totalDays = Math.floor(timeLeftMs / (1000 * 60 * 60 * 24));
+  
+    // Calculate years
+    const years = Math.floor(totalDays / 365); // Approx. 365 days in a year
+  
+    // Subtract years from total days to calculate remaining months and days
+    const remainingDaysAfterYears = totalDays % 365;
+    const months = Math.floor(remainingDaysAfterYears / 30); // Approx. 30 days in a month
+    const days = remainingDaysAfterYears % 30; // Remaining days after calculating months
+  
+    let result = '';
+  
+    if (years > 0) {
+      result += `${years} year${years > 1 ? 's' : ''} `;
+      if (months > 0) result += `${months} month${months > 1 ? 's' : ''}`;
+    } else if (months > 0) {
+      result += `${months} month${months > 1 ? 's' : ''} `;
+      if (days > 0) result += `${days} day${days > 1 ? 's' : ''}`;
+    } else if (days > 0) {
+      result += `${days} day${days > 1 ? 's' : ''} `;
+      if (hours > 0) result += `${hours} hour${hours > 1 ? 's' : ''}`;
+    } else if (hours > 0) {
+      result += `${hours} hour${hours > 1 ? 's' : ''} `;
+      if (minutes > 0) result += `${minutes} minute${minutes > 1 ? 's' : ''}`;
+    } else if (minutes > 0) {
+      result += `${minutes} minute${minutes > 1 ? 's' : ''} `;
+      if (seconds > 0) result += `${seconds} second${seconds > 1 ? 's' : ''}`;
+    } else {
+      result += `${seconds} second${seconds > 1 ? 's' : ''}`;
+    }
+  
+    return result.trim() || 'Expired';
+  }
+  
+  
+  
+  
+
 // Set the time period
 document.getElementById('setTime').addEventListener('click', () => {
   const time = parseInt(document.getElementById('timePeriod').value);
@@ -111,42 +191,6 @@ function displayTabs() {
 //   });
 // }
 
-// Update time left for each tab and close expired tabs
-// function updateTimeLeft() {
-//     chrome.storage.sync.get(['timePeriod'], function (result) {
-//       const timePeriod = result.timePeriod || 0;
-  
-//       chrome.storage.local.get(null, function (storedData) {
-//         for (const [key, value] of Object.entries(storedData)) {
-//           if (key.startsWith('lastAccessed_')) {
-//             const tabId = key.split('_')[1];
-//             const lastAccessed = value;
-//             const timeLeftMs = timePeriod - (Date.now() - lastAccessed);
-  
-//             const timeLeftElement = document.querySelector(`#tab-${tabId} .time-left`);
-//             if (timeLeftElement) {
-//               timeLeftElement.textContent =
-//                 timeLeftMs > 0 ? `Time Left: ${Math.ceil(timeLeftMs / 1000)}s` : 'Expired';
-//             }
-  
-//             // Close the tab if it has expired
-//             if (timeLeftMs <= 0) {
-//               chrome.tabs.remove(parseInt(tabId), () => {
-//                 if (chrome.runtime.lastError) {
-//                   console.warn(`Failed to close tab ${tabId}:`, chrome.runtime.lastError.message);
-//                 } else {
-//                   console.log(`Tab ${tabId} closed because it expired.`);
-//                 }
-//               });
-  
-//               // Clean up the expired tab's data from storage
-//               chrome.storage.local.remove(`lastAccessed_${tabId}`);
-//             }
-//           }
-//         }
-//       });
-//     });
-//   }
 
 function updateTimeLeft() {
     chrome.storage.sync.get(['timePeriod'], function (result) {
@@ -162,7 +206,7 @@ function updateTimeLeft() {
             const timeLeftElement = document.querySelector(`#tab-${tabId} .time-left`);
             if (timeLeftElement) {
               timeLeftElement.textContent =
-                timeLeftMs > 0 ? `Time Left: ${Math.ceil(timeLeftMs / 1000)}s` : 'Expired';
+                timeLeftMs > 0 ? `Time Left: ${formatTimeLeft(timeLeftMs) }` : 'Expired';
             }
   
             // Check protection status
