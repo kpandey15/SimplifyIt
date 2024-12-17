@@ -4,9 +4,11 @@
     "version": "1.0",
     "description": "Automatically close unused tabs after a set period of time.",
     "permissions": [
-      "tabs",
-      "storage"
-    ],
+    "tabs",
+    "storage",
+    "activeTab",
+    "alarms"
+  ],
     "background": {
       "service_worker": "background.js"
     },
